@@ -142,14 +142,22 @@ function rand(from, to) {
 	return from + Math.random() * (to - from);
 }
 
-function WorldGenerator() {
+function WorldGenerator(minX, maxX) {
 	var lastPosition = new Vector2(-2.5, 1);
-	var lastWidth = 5;
+	var lastWidth = 1.5;
 	
 	this.generateNext = function() {
-		var pos = new Vector2(lastPosition.x + rand(-4, 4), lastPosition.y + rand(-5, -10));
+		var pos = new Vector2(lastPosition.x + rand(-4, 4), lastPosition.y + rand(-2, -6));
+		var width = lastWidth;
+		if(pos.x < minX) {
+			pos.x = 0;
+		}
+		if(pos.x + width >= maxX) {
+			pos.x = maxX - width;
+		}
 		var rect = createSkewedRect(pos.x, lastPosition.x, pos.y, lastWidth, lastPosition.y - pos.y + 1);
 		lastPosition = pos;
+		lastWidth = width;
 		return rect;
 	};
 	
@@ -166,7 +174,7 @@ function Game(display) {
 		playerPosition = pos;
 	});
 	var world = [];
-	var worldGenerator = new WorldGenerator();
+	var worldGenerator = new WorldGenerator(-4, 4);
 	for(var i = 0; i < 100; i++) {
 		world.push(worldGenerator.generateNext());
 	}
