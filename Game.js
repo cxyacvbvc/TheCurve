@@ -13,7 +13,7 @@ function Vector2(x, y) {
 	};
 	
 	this.mult = function(other) {
-		return new Vector2(x * other.y, y * other.y);
+		return new Vector2(x * other.x, y * other.y);
 	};
 	
 	this.div = function(other) {
@@ -86,6 +86,18 @@ function Polygon(points) {
 function Renderer(display, viewport) {
 	
 	var ctx = display.getContext("2d");
+	var onMouseClick = null;
+	display.addEventListener('mousemove', function(evt) {
+		if(onMouseClick !== null) {
+			var rect = display.getBoundingClientRect();
+			var pos = new Vector2(evt.clientX - rect.left, evt.clientY - rect.top);
+			onMouseClick(toWorldVector(pos));
+		}
+	});
+	
+	this.setMouseClickListener = function(func) {
+		onMouseClick = func;
+	};
 	
 	this.fillScreen = function() {
 		ctx.fillStyle = "#FF0000";
@@ -119,6 +131,11 @@ function Renderer(display, viewport) {
 		var clientSize = new Vector2(display.clientWidth, display.clientHeight);
 		return vec.subtract(viewport.position).mult(clientSize.div(viewport.size));
 	};
+	
+	var toWorldVector = function(vec) {
+		var clientSize = new Vector2(display.clientWidth, display.clientHeight);
+		return vec.mult(viewport.size.div(clientSize)).add(viewport.position);
+	};
 }
 
 function rand(from, to) {
@@ -144,6 +161,10 @@ function Game(display) {
 	var playerPosition = new Vector2(0, 0);
 	var intervalHandle = null;
 	var renderer = new Renderer(display, viewport);
+	renderer.setMouseClickListener(function(clickedPosition) {
+		var pos = new Vector2(clickedPosition.x, playerPosition.y);
+		playerPosition = pos;
+	});
 	var world = [];
 	var worldGenerator = new WorldGenerator();
 	for(var i = 0; i < 100; i++) {

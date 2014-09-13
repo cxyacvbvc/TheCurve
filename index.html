@@ -6,11 +6,13 @@
 <script src="Game.js"></script>
 </head>
 <body>
-	<canvas id="display" style="width:100%;height:100%;">
+	<canvas id="display">
 	</canvas>
 </body>
 <script>
 	var display = document.getElementById("display");
+	display.width = window.innerWidth;
+	display.height = window.innerHeight;
 	var game = new Game(display);
 	game.start();
 </script>
