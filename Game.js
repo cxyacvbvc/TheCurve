@@ -19,6 +19,10 @@ function Vector2(x, y) {
 	this.div = function(other) {
 		return new Vector2(x / other.x, y / other.y);
 	};
+	
+	this.dot = function(other) {
+		return x * other.x + y * other.y;
+	};
 }
 
 function Viewport(position, size) {
@@ -28,22 +32,55 @@ function Viewport(position, size) {
 
 function createSkewedRect(x1, x2, y, w, h) {
 	var points = [new Vector2(x1, y),
-	              new Vector2(x1 + w + 1, y),
+	              new Vector2(x2, y + h - 1),
 	              new Vector2(x2 + w + 1, y + h - 1),
-	              new Vector2(x2, y + h - 1)];
+	              new Vector2(x1 + w + 1, y)];
+	              
 	return new Polygon(points);
 }
 
 function createRect(x, y, w, h) {
 	var points = [new Vector2(x, y),
-	              new Vector2(x + w - 1, y),
+	              new Vector2(x, y + h - 1),
 	              new Vector2(x + w - 1, y + h - 1),
-	              new Vector2(x, y + h - 1)];
+	              new Vector2(x + w - 1, y)];
 	return new Polygon(points);
+}
+
+function Line(from, to) {
+	this.from = from;
+	this.to = to;
 }
 
 function Polygon(points) {
 	this.points = points;
+	
+	this.contains = function(vec) {
+		var lin = this.lines();
+		for(var i = 0; i < lin.length; i++) {
+			var line = lin[i];
+			var a = line.from;
+			var b = line.to;
+			var c = vec;
+			if((b.x - a.x) * (c.y - a.y) - 
+					(b.y - a.y) * (c.x - a.x) > 0) {
+						return false;
+					}
+		}
+		return true;
+	};
+	
+	this.lines = function() {
+		var result = [];
+		var prev = points[0];
+		for(var i = 1; i < points.length; i++) {
+			var curr = points[i];
+			result.push(new Line(prev, curr));
+			prev = curr;
+		};
+		result.push(new Line(points[points.length - 1], points[0]));
+		return result;
+	};
 }
 
 function Renderer(display, viewport) {
@@ -94,7 +131,7 @@ function WorldGenerator() {
 	
 	this.generateNext = function() {
 		var pos = new Vector2(lastPosition.x + rand(-4, 4), lastPosition.y + rand(-5, -10));
-		var rect = createSkewedRect(lastPosition.x, pos.x, lastPosition.y, lastWidth, pos.y - lastPosition.y + 1);
+		var rect = createSkewedRect(pos.x, lastPosition.x, pos.y, lastWidth, lastPosition.y - pos.y + 1);
 		lastPosition = pos;
 		return rect;
 	};
@@ -109,7 +146,7 @@ function Game(display) {
 	var renderer = new Renderer(display, viewport);
 	var world = [];
 	var worldGenerator = new WorldGenerator();
-	for(var i = 0; i < 10; i++) {
+	for(var i = 0; i < 100; i++) {
 		world.push(worldGenerator.generateNext());
 	}
 	
@@ -117,8 +154,29 @@ function Game(display) {
 		var movePerStep = 0.2;
 		playerPosition.y -= movePerStep;
 		viewport.position.y -= movePerStep;
+		checkCollision();
 	};
 	
+	var checkCollision = function() {
+		if(playerWall()) {
+			playerLose();
+		}
+	};
+	
+	var playerWall = function() {
+		for(var i = 0; i < world.length; i++) {
+			var center = new Vector2(playerPosition.x + 0.5, playerPosition.y + 0.5);
+			if(world[i].contains(center)) {
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	var playerLose = function() {
+		alert("Lost");
+	};
+		
 	var draw = function() {
 		renderer.fillScreen();
 		world.forEach(function(poly) {
