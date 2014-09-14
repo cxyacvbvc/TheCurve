@@ -176,8 +176,8 @@ function rand(from, to) {
 
 function WorldGenerator(minX, maxX) {
 	var lastPosition = new Vector2(-2.5, -4);
-	this.width = 1.5;
-	this.height = 4;
+	this.width = 2.5;
+	this.height = 6;
 	this.displacement = 4;
 	var isFirst = true;
 	
@@ -225,6 +225,12 @@ function Game(display) {
 		}
 	});
 	
+	var increaseDifficulty = function() {
+		//worldGenerator.displacement *= 1.1;
+		worldGenerator.width *= 0.9;
+		worldGenerator.height *= 0.9;
+	};
+	
 	var update = function() {
 		if(running) {
 			var movePerStep = 0.2;
@@ -266,7 +272,7 @@ function Game(display) {
 			renderer.drawPolygon(poly);
 		});
 		renderer.drawCircle(playerPosition);
-		renderer.drawText("Punkte: " + points, new Vector2(0.045, 0.05), 16);
+		renderer.drawText("Punkte: " + points, new Vector2(0.05, 0.05), 16);
 		if(!running) {
 			renderer.drawText("GAME OVER", new Vector2(0.5, 0.40), 50);
 			renderer.drawText("Touch screen to try again", new Vector2(0.5, 0.45), 16);
