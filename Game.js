@@ -23,6 +23,13 @@ function Vector2(x, y) {
 	this.dot = function(other) {
 		return x * other.x + y * other.y;
 	};
+	
+	this.ceil = function() {
+		return new Vector2(Math.ceil(x), Math.ceil(y));
+	};
+	this.addScalar = function(number) {
+		return new Vector2(x + number, y + number);
+	};
 }
 
 function Viewport(position, size) {
@@ -105,7 +112,7 @@ function Renderer(display, viewport) {
 	};
 	
 	this.drawCircle = function(worldPos) {
-		var screenPos = toPixelVector(new Vector2(worldPos.x + 0.5, worldPos.y + 0.5));
+		var screenPos = toPixelVector(new Vector2(worldPos.x, worldPos.y));
 		ctx.fillStyle = "#0000FF";
 		ctx.beginPath();
 		ctx.arc(screenPos.x, screenPos.y, 2.5, 0, 2 * Math.PI);
@@ -117,12 +124,12 @@ function Renderer(display, viewport) {
 			ctx.fillStyle = "#FFFFFF";
 			ctx.beginPath();
 			var start = toPixelVector(polygon.points[0]);
-			ctx.moveTo(start.x, start.y);
+			ctx.moveTo(start.x + 0.5, start.y + 0.5);
 			polygon.points.forEach(function(point) {
 				var vec = toPixelVector(point);
-				ctx.lineTo(vec.x, vec.y);
+				ctx.lineTo(vec.x + 0.5, vec.y + 0.5);
 			});
-			ctx.lineTo(start.x, start.y);
+			ctx.lineTo(start.x + 0.5, start.y + 0.5);
 			ctx.fill();			
 		}
 	};
@@ -150,7 +157,7 @@ function WorldGenerator(minX, maxX) {
 		var pos = new Vector2(lastPosition.x + rand(-4, 4), lastPosition.y + rand(-2, -6));
 		var width = lastWidth;
 		if(pos.x < minX) {
-			pos.x = 0;
+			pos.x = minX;
 		}
 		if(pos.x + width >= maxX) {
 			pos.x = maxX - width;
@@ -194,8 +201,7 @@ function Game(display) {
 	
 	var playerWall = function() {
 		for(var i = 0; i < world.length; i++) {
-			var center = new Vector2(playerPosition.x + 0.5, playerPosition.y + 0.5);
-			if(world[i].contains(center)) {
+			if(world[i].contains(playerPosition)) {
 				return false;
 			}
 		}
