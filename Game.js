@@ -166,7 +166,9 @@ function rand(from, to) {
 
 function WorldGenerator(minX, maxX) {
 	var lastPosition = new Vector2(-2.5, -4);
-	var lastWidth = 1.5;
+	this.width = 1.5;
+	this.height = 4;
+	this.displacement = 4;
 	var isFirst = true;
 	
 	this.generateNext = function() {
@@ -174,20 +176,18 @@ function WorldGenerator(minX, maxX) {
 			isFirst = false;
 			return createRect(minX, -5, maxX - minX, 10);
 		}
-		var pos = new Vector2(lastPosition.x + rand(-4, 4), lastPosition.y + rand(-2, -6));
-		var width = lastWidth;
+		var pos = new Vector2(lastPosition.x + rand(-this.displacement, this.displacement), 
+				lastPosition.y - this.height);
 		if(pos.x < minX) {
 			pos.x = minX;
 		}
-		if(pos.x + width >= maxX) {
-			pos.x = maxX - width;
+		if(pos.x + this.width >= maxX) {
+			pos.x = maxX - this.width;
 		}
-		var rect = createSkewedRect(pos.x, lastPosition.x, pos.y, lastWidth, lastPosition.y - pos.y + 1);
+		var rect = createSkewedRect(pos.x, lastPosition.x, pos.y, this.width, lastPosition.y - pos.y + 1);
 		lastPosition = pos;
-		lastWidth = width;
 		return rect;
 	};
-	
 }
 
 function Game(display) {
