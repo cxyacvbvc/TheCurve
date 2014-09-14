@@ -122,6 +122,7 @@ function Renderer(display, viewport) {
 	this.drawPolygon = function(polygon) {
 		if(polygon.points.length > 1) {
 			ctx.fillStyle = "#FFFFFF";
+			ctx.strokeStyle = "#FFFFFF";
 			ctx.beginPath();
 			var start = toPixelVector(polygon.points[0]);
 			ctx.moveTo(start.x + 0.5, start.y + 0.5);
@@ -130,7 +131,8 @@ function Renderer(display, viewport) {
 				ctx.lineTo(vec.x + 0.5, vec.y + 0.5);
 			});
 			ctx.lineTo(start.x + 0.5, start.y + 0.5);
-			ctx.fill();			
+			ctx.fill();
+			ctx.stroke();
 		}
 	};
 	
