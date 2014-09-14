@@ -30,6 +30,9 @@ function Vector2(x, y) {
 	this.addScalar = function(number) {
 		return new Vector2(x + number, y + number);
 	};
+	this.divScalar = function(number) {
+		return new Vector2(x / number, y / number);
+	};
 }
 
 function Viewport(position, size) {
@@ -111,6 +114,16 @@ function Renderer(display, viewport) {
 		ctx.fillRect(0, 0, display.clientWidth, display.clientHeight);
 	};
 	
+	this.drawText = function(text, position, fontSize) {
+		ctx.fillStyle = "#000000";
+		ctx.font = fontSize + 'px Calibri';
+		var measure = ctx.measureText(text);
+		var measureVec = new Vector2(measure.width, fontSize);
+		var clientSize = new Vector2(display.clientWidth, display.clientHeight);
+		var absPos = clientSize.mult(position).subtract(measureVec.divScalar(2));
+		ctx.fillText(text, absPos.x, absPos.y);
+	};
+	
 	this.drawCircle = function(worldPos) {
 		var screenPos = toPixelVector(new Vector2(worldPos.x, worldPos.y));
 		ctx.fillStyle = "#0000FF";
@@ -174,6 +187,9 @@ function WorldGenerator(minX, maxX) {
 
 function Game(display) {
 	
+	var points = 0;
+	var running = true;
+	
 	var viewport = new Viewport(new Vector2(-5, -5), new Vector2(10, 20));
 	var playerPosition = new Vector2(0, 0);
 	var intervalHandle = null;
@@ -189,10 +205,13 @@ function Game(display) {
 	}
 	
 	var update = function() {
-		var movePerStep = 0.2;
-		playerPosition.y -= movePerStep;
-		viewport.position.y -= movePerStep;
-		checkCollision();
+		if(running) {
+			var movePerStep = 0.2;
+			playerPosition.y -= movePerStep;
+			viewport.position.y -= movePerStep;
+			checkCollision();
+			points++;			
+		}
 	};
 	
 	var checkCollision = function() {
@@ -211,7 +230,7 @@ function Game(display) {
 	};
 	
 	var playerLose = function() {
-		alert("Lost");
+		running = false;
 	};
 		
 	var draw = function() {
@@ -220,6 +239,10 @@ function Game(display) {
 			renderer.drawPolygon(poly);
 		});
 		renderer.drawCircle(playerPosition);
+		if(!running) {
+			renderer.drawText("GAME OVER", new Vector2(0.5, 0.35), 50);
+			renderer.drawText("Press enter to try again", new Vector2(0.5, 0.45), 16);
+		}
 	};
 	
 	this.start = function() {
