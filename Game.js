@@ -107,13 +107,22 @@ function Renderer(display, viewport) {
 	
 	var ctx = display.getContext("2d");
 	var onMouseClick = null;
-	display.addEventListener('mousemove', function(evt) {
+	var onMoveListner = function(evt) {
 		if(onMouseClick !== null) {
 			var rect = display.getBoundingClientRect();
 			var pos = new Vector2(evt.clientX - rect.left, evt.clientY - rect.top);
 			onMouseClick(toWorldVector(pos));
 		}
-	});
+	};
+	
+	
+	this.start = function() {
+		display.addEventListener('mousemove', onMoveListner);
+	};
+	
+	this.stop = function() {
+		display.removeEventListener('mousemove', onMoveListner);
+	};
 	
 	this.setMouseClickListener = function(func) {
 		onMouseClick = func;
@@ -228,11 +237,11 @@ function Game(display) {
 	var world = [];
 	var worldGenerator = new WorldGenerator(-4, 4);
 	world.push(worldGenerator.generateNext());
-	display.addEventListener('mousedown', function(evt) {
+	var mouseDownListener = function(evt) {
 		if(!running && restartListener !== null) {
 			restartListener();
 		}
-	});
+	};
 	
 	var increaseDifficulty = function() {
 		//worldGenerator.displacement *= 1.1;
@@ -289,6 +298,8 @@ function Game(display) {
 	};
 	
 	this.start = function() {
+		renderer.start();
+		display.addEventListener('mousedown', mouseDownListener);
 		intervalHandle = setInterval(function() {
 			update();
 			draw();
@@ -296,6 +307,8 @@ function Game(display) {
 	};
 	
 	this.stop = function() {
+		renderer.stop();
+		display.removeEventListener('mousedown', mouseDownListener);
 		if(intervalHandle !== null) {
 			clearInterval(intervalHandle);
 			intervalHandle = null;			
