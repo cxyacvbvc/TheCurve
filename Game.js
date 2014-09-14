@@ -239,6 +239,7 @@ function Game(display) {
 			renderer.drawPolygon(poly);
 		});
 		renderer.drawCircle(playerPosition);
+		renderer.drawText("Punkte: " + points, new Vector2(0.04, 0.05), 16);
 		if(!running) {
 			renderer.drawText("GAME OVER", new Vector2(0.5, 0.35), 50);
 			renderer.drawText("Press enter to try again", new Vector2(0.5, 0.45), 16);
