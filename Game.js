@@ -165,10 +165,15 @@ function rand(from, to) {
 }
 
 function WorldGenerator(minX, maxX) {
-	var lastPosition = new Vector2(-2.5, 1);
+	var lastPosition = new Vector2(-2.5, -4);
 	var lastWidth = 1.5;
+	var isFirst = true;
 	
 	this.generateNext = function() {
+		if(isFirst) {
+			isFirst = false;
+			return createRect(minX, -5, maxX - minX, 10);
+		}
 		var pos = new Vector2(lastPosition.x + rand(-4, 4), lastPosition.y + rand(-2, -6));
 		var width = lastWidth;
 		if(pos.x < minX) {
