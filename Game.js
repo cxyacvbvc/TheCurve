@@ -80,6 +80,16 @@ function Polygon(points) {
 		return true;
 	};
 	
+	this.minY = function() {
+		var min = points[0].y;
+		points.forEach(function(p) {
+			if(p.y < min){
+				min = p.y;
+			}
+		});
+		return min;
+	};
+	
 	this.lines = function() {
 		var result = [];
 		var prev = points[0];
@@ -208,9 +218,7 @@ function Game(display) {
 	});
 	var world = [];
 	var worldGenerator = new WorldGenerator(-4, 4);
-	for(var i = 0; i < 100; i++) {
-		world.push(worldGenerator.generateNext());
-	}
+	world.push(worldGenerator.generateNext());
 	display.addEventListener('mousedown', function(evt) {
 		if(!running && restartListener !== null) {
 			restartListener();
@@ -223,7 +231,13 @@ function Game(display) {
 			playerPosition.y -= movePerStep;
 			viewport.position.y -= movePerStep;
 			checkCollision();
-			points++;			
+			points++;		
+			if(points % 200 === 0) {
+				increaseDifficulty();
+			}
+			while(world[world.length - 1].minY() >= viewport.position.y) {
+				world.push(worldGenerator.generateNext());
+			}
 		}
 	};
 	
