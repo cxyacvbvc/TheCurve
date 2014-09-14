@@ -13,7 +13,15 @@
 	var display = document.getElementById("display");
 	display.width = window.innerWidth;
 	display.height = window.innerHeight;
-	var game = new Game(display);
-	game.start();
+	window.linegame = null;
+	var runFunction = function() {
+		if(window.linegame !== null) {
+			window.linegame.stop();
+		}
+		window.linegame = new Game(display);
+		window.linegame.setRestartListener(runFunction);
+		window.linegame.start();		
+	}
+	runFunction();
 </script>
 </html>

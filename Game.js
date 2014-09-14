@@ -199,15 +199,23 @@ function Game(display) {
 	var playerPosition = new Vector2(0, 0);
 	var intervalHandle = null;
 	var renderer = new Renderer(display, viewport);
+	var restartListener = null;
 	renderer.setMouseClickListener(function(clickedPosition) {
-		var pos = new Vector2(clickedPosition.x, playerPosition.y);
-		playerPosition = pos;
+		if(running) {
+			var pos = new Vector2(clickedPosition.x, playerPosition.y);
+			playerPosition = pos;			
+		}
 	});
 	var world = [];
 	var worldGenerator = new WorldGenerator(-4, 4);
 	for(var i = 0; i < 100; i++) {
 		world.push(worldGenerator.generateNext());
 	}
+	display.addEventListener('mousedown', function(evt) {
+		if(!running && restartListener !== null) {
+			restartListener();
+		}
+	});
 	
 	var update = function() {
 		if(running) {
@@ -244,10 +252,10 @@ function Game(display) {
 			renderer.drawPolygon(poly);
 		});
 		renderer.drawCircle(playerPosition);
-		renderer.drawText("Punkte: " + points, new Vector2(0.04, 0.05), 16);
+		renderer.drawText("Punkte: " + points, new Vector2(0.045, 0.05), 16);
 		if(!running) {
-			renderer.drawText("GAME OVER", new Vector2(0.5, 0.35), 50);
-			renderer.drawText("Press enter to try again", new Vector2(0.5, 0.45), 16);
+			renderer.drawText("GAME OVER", new Vector2(0.5, 0.40), 50);
+			renderer.drawText("Touch screen to try again", new Vector2(0.5, 0.45), 16);
 		}
 	};
 	
@@ -263,6 +271,10 @@ function Game(display) {
 			clearInterval(intervalHandle);
 			intervalHandle = null;			
 		}
+	};
+	
+	this.setRestartListener = function(listener) {
+		restartListener = listener;
 	};
 	
 }
