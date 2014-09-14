@@ -176,9 +176,9 @@ function rand(from, to) {
 
 function WorldGenerator(minX, maxX) {
 	var lastPosition = new Vector2(-2.5, -4);
-	this.width = 2.5;
-	this.height = 6;
-	this.displacement = 4;
+	var width = 3;
+	var height = 6;
+	var displacement = 4;
 	var isFirst = true;
 	
 	this.generateNext = function() {
@@ -186,17 +186,26 @@ function WorldGenerator(minX, maxX) {
 			isFirst = false;
 			return createRect(minX, -5, maxX - minX, 10);
 		}
-		var pos = new Vector2(lastPosition.x + rand(-this.displacement, this.displacement), 
-				lastPosition.y - this.height);
+		var pos = new Vector2(lastPosition.x + rand(-displacement, displacement), 
+				lastPosition.y - height);
 		if(pos.x < minX) {
 			pos.x = minX;
 		}
-		if(pos.x + this.width >= maxX) {
-			pos.x = maxX - this.width;
+		if(pos.x + width >= maxX) {
+			pos.x = maxX - width;
 		}
-		var rect = createSkewedRect(pos.x, lastPosition.x, pos.y, this.width, lastPosition.y - pos.y + 1);
+		var rect = createSkewedRect(pos.x, lastPosition.x, pos.y, width, lastPosition.y - pos.y + 1);
 		lastPosition = pos;
 		return rect;
+	};
+	
+	this.setWidth = function(w) {
+		lastPosition.x += (width - w) / 2;
+		width = w;
+	};
+	
+	this.getWidth = function() {
+		return width;
 	};
 }
 
@@ -227,7 +236,7 @@ function Game(display) {
 	
 	var increaseDifficulty = function() {
 		//worldGenerator.displacement *= 1.1;
-		worldGenerator.width *= 0.9;
+		worldGenerator.setWidth(worldGenerator.getWidth() * 0.9);
 		worldGenerator.height *= 0.9;
 	};
 	
